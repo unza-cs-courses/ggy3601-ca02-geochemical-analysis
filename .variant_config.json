@@ -1,0 +1,16 @@
+{
+  "student_id": "finaltest_ca2",
+  "variant_seed": 5107017572287305259,
+  "group_id": 9,
+  "parameters": {
+    "primary_element": "Ag",
+    "secondary_elements": [
+      "Pb",
+      "Ag",
+      "Zn"
+    ],
+    "quality_filter": "Fair",
+    "anomaly_threshold_multiplier": 2.0,
+    "num_assays": 503
+  }
+}

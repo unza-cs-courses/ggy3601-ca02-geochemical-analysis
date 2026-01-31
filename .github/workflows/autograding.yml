@@ -1,0 +1,66 @@
+name: Autograding Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          pip install pytest pytest-json-report pandas numpy matplotlib
+
+      - name: Run Visible Tests
+        run: |
+          pytest tests/visible/ \
+            --json-report \
+            --json-report-file=test_results.json \
+            -v --tb=short
+
+      - name: Calculate Score
+        if: always()
+        run: |
+          python -c "
+          import json
+          import os
+
+          try:
+              with open('test_results.json') as f:
+                  results = json.load(f)
+              passed = results['summary']['passed']
+              total = results['summary']['total']
+              score = (passed / total) * 100 if total > 0 else 0
+
+              print('## Coding Assignment 2: Visible Test Results')
+              print(f'**Score: {score:.1f}%**')
+              print(f'Tests Passed: {passed}/{total}')
+              print('')
+
+              if score == 100:
+                  print('All visible tests passed! Great work!')
+              elif score >= 70:
+                  print('Good progress - review the failed tests.')
+              else:
+                  print('Review the test output and check your code.')
+          except Exception as e:
+              print(f'Could not calculate score: {e}')
+          " >> \$GITHUB_STEP_SUMMARY
+
+      - name: Upload Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test_results.json
